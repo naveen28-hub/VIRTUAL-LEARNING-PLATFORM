@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Learning Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f7f5f0;
+    --cream: #ede9e1;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --rust: #c0562a;
+    --sage: #4a7c6f;
+    --slate: #2e3d49;
+    --muted: #7a7570;
+    --card-bg: #ffffff;
+    --border: #ddd9d2;
+    --shadow: 0 4px 24px rgba(13,13,13,0.08);
+    --shadow-hover: 0 12px 40px rgba(13,13,13,0.15);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --transition: 0.32s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── NAVBAR ─────────────────────────────────────────────── */
+  .navbar {
+    position: sticky; top: 0; z-index: 999;
+    background: rgba(247,245,240,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 clamp(1rem, 5vw, 3rem);
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+    transition: box-shadow var(--transition);
+  }
+  .navbar.scrolled { box-shadow: 0 2px 24px rgba(13,13,13,0.10); }
+
+  .nav-brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.5rem;
+    color: var(--ink); text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: -0.02em;
+  }
+  .nav-brand .dot { color: var(--gold); }
+
+  .nav-links {
+    display: flex; align-items: center; gap: 4px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: 0.92rem;
+    color: var(--muted); text-decoration: none;
+    padding: 8px 16px; border-radius: 8px;
+    transition: color var(--transition), background var(--transition);
+    cursor: pointer;
+  }
+  .nav-links a:hover, .nav-links a.active {
+    color: var(--ink); background: var(--cream);
+  }
+  .nav-links a.active { color: var(--gold); }
+
+  .hamburger {
+    display: none; flex-direction: column;
+    gap: 5px; cursor: pointer; padding: 8px;
+    background: none; border: none;
+  }
+  .hamburger span {
+    display: block; width: 22px; height: 2px;
+    background: var(--ink); border-radius: 2px;
+    transition: var(--transition);
+  }
+  .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+  .mobile-menu {
+    display: none; position: fixed;
+    top: 68px; left: 0; right: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem 1.5rem;
+    z-index: 998;
+    flex-direction: column; gap: 4px;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    font-weight: 500; color: var(--ink);
+    text-decoration: none; padding: 12px 16px;
+    border-radius: 10px; transition: background var(--transition);
+    cursor: pointer;
+  }
+  .mobile-menu a:hover { background: var(--cream); }
+
+  /* ─── PAGE SYSTEM ─────────────────────────────────────────── */
+  .page { display: none; animation: fadeUp 0.45s ease both; }
+  .page.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── HERO ────────────────────────────────────────────────── */
+  .hero {
+    padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 5vw, 3rem) 3rem;
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 3rem; align-items: center;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--cream); border: 1px solid var(--border);
+    border-radius: 100px; padding: 6px 14px;
+    font-size: 0.78rem; font-weight: 500;
+    color: var(--muted); letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 1.25rem;
+  }
+  .hero-eyebrow .pulse {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--sage); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 800; line-height: 1.08;
+    letter-spacing: -0.03em; margin-bottom: 1.25rem;
+  }
+  .hero h1 em {
+    font-style: italic; color: var(--gold);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+  }
+
+  .hero p {
+    color: var(--muted); font-size: 1.05rem;
+    line-height: 1.7; margin-bottom: 2rem;
+    max-width: 440px;
+  }
+
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 26px; border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: 0.95rem;
+    cursor: pointer; border: none; text-decoration: none;
+    transition: all var(--transition);
+  }
+  .btn-primary {
+    background: var(--ink); color: var(--paper);
+  }
+  .btn-primary:hover { background: var(--slate); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13,13,13,0.2); }
+  .btn-outline {
+    background: transparent; color: var(--ink);
+    border: 1.5px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--ink); transform: translateY(-2px); }
+
+  .hero-visual {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-card-stack { position: relative; width: 340px; height: 300px; }
+  .stat-card {
+    position: absolute; background: var(--card-bg);
+    border-radius: var(--radius); padding: 20px 24px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+  }
+  .stat-card.card-a { top: 0; left: 0; right: 0; }
+  .stat-card.card-b { bottom: 0; left: 20px; right: 20px; }
+  .stat-card .label { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+  .stat-card .value {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem; font-weight: 700; color: var(--ink);
+  }
+  .stat-card .sub { font-size: 0.82rem; color: var(--sage); margin-top: 4px; }
+  .progress-mini { margin-top: 12px; }
+  .prog-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
+  .prog-bar-wrap { height: 6px; background: var(--cream); border-radius: 3px; overflow: hidden; }
+  .prog-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+
+  /* ─── SECTION TITLES ──────────────────────────────────────── */
+  .section-wrap { max-width: 1200px; margin: 0 auto; padding: 3rem clamp(1rem, 5vw, 3rem); }
+
+  .section-header { margin-bottom: 2.5rem; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 600;
+    color: var(--gold); letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 0.6rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 700; letter-spacing: -0.02em;
+  }
+  .section-subtitle { color: var(--muted); margin-top: 0.5rem; font-size: 1rem; }
+
+  /* ─── SUBJECT GRID ────────────────────────────────────────── */
+  .subject-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .subject-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem 1.5rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    position: relative; overflow: hidden;
+  }
+  .subject-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: var(--card-accent, var(--gold));
+    transform: scaleX(0); transform-origin: left;
+    transition: transform var(--transition);
+  }
+  .subject-card:hover::before { transform: scaleX(1); }
+  .subject-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+    border-color: transparent;
+  }
+
+  .subject-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; margin-bottom: 1rem;
+    background: var(--icon-bg, #fff8e6);
+  }
+  .subject-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem; font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .subject-card p { font-size: 0.84rem; color: var(--muted); line-height: 1.5; }
+  .subject-meta {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 1rem; font-size: 0.78rem; color: var(--muted);
+  }
+  .subject-meta span { display: flex; align-items: center; gap: 4px; }
+  .subject-badge {
+    display: inline-block;
+    background: var(--badge-bg, #fff8e6);
+    color: var(--badge-color, var(--gold));
+    font-size: 0.7rem; font-weight: 600;
+    padding: 3px 10px; border-radius: 100px;
+    margin-top: 0.75rem;
+  }
+
+  /* ─── STATS BAR ───────────────────────────────────────────── */
+  .stats-bar {
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius); padding: 2rem 2.5rem;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1rem; margin: 0 0 3rem 0;
+    text-align: center;
+  }
+  .stats-bar .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem; font-weight: 800; color: var(--gold);
+  }
+  .stats-bar .stat-label { font-size: 0.82rem; color: rgba(247,245,240,0.6); margin-top: 4px; }
+  .stats-bar .stat-div { border-right: 1px solid rgba(255,255,255,0.1); }
+  .stats-bar .stat-div:last-child { border-right: none; }
+
+  /* ─── COURSE PAGE ─────────────────────────────────────────── */
+  .course-back {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--muted); font-size: 0.9rem;
+    cursor: pointer; padding: 8px 0;
+    transition: color var(--transition);
+    background: none; border: none; font-family: inherit;
+  }
+  .course-back:hover { color: var(--ink); }
+
+  .course-hero {
+    background: var(--ink); color: var(--paper);
+    border-radius: var(--radius); padding: 2.5rem;
+    margin: 1rem 0 2rem; position: relative; overflow: hidden;
+  }
+  .course-hero::after {
+    content: ''; position: absolute;
+    top: -80px; right: -80px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: var(--gold); opacity: 0.08;
+  }
+  .course-hero .course-label {
+    font-size: 0.75rem; color: var(--gold);
+    font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 0.75rem;
+  }
+  .course-hero h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 700; letter-spacing: -0.02em;
+    margin-bottom: 0.75rem; position: relative; z-index: 1;
+  }
+  .course-hero p {
+    color: rgba(247,245,240,0.7);
+    max-width: 540px; line-height: 1.6;
+    position: relative; z-index: 1;
+  }
+  .course-hero-meta {
+    display: flex; gap: 1.5rem; margin-top: 1.5rem;
+    flex-wrap: wrap; position: relative; z-index: 1;
+  }
+  .course-hero-meta span {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.85rem; color: rgba(247,245,240,0.7);
+  }
+
+  .course-layout {
+    display: grid; grid-template-columns: 1fr 340px;
+    gap: 2rem; align-items: start;
+  }
+
+  .video-player {
+    background: #000; border-radius: var(--radius);
+    overflow: hidden; aspect-ratio: 16/9;
+    position: relative;
+  }
+  .video-player iframe {
+    width: 100%; height: 100%; border: none; display: block;
+  }
+
+  .video-info { padding: 1.25rem 0; }
+  .video-info h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;
+  }
+  .video-info p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
+  .playlist-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    position: sticky; top: 88px;
+  }
+  .playlist-header {
+    padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .playlist-count { font-size: 0.78rem; color: var(--muted); font-weight: 400; font-family: 'DM Sans', sans-serif; }
+
+  .playlist-items { max-height: 480px; overflow-y: auto; }
+  .playlist-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; cursor: pointer;
+    transition: background var(--transition);
+    border-bottom: 1px solid var(--border);
+  }
+  .playlist-item:last-child { border-bottom: none; }
+  .playlist-item:hover { background: var(--cream); }
+  .playlist-item.active { background: #fff8e6; }
+
+  .playlist-num {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--cream); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 600; flex-shrink: 0;
+    color: var(--muted);
+  }
+  .playlist-item.active .playlist-num {
+    background: var(--gold); color: #fff;
+  }
+  .playlist-item-info { flex: 1; }
+  .playlist-item-title { font-size: 0.85rem; font-weight: 500; margin-bottom: 3px; }
+  .playlist-item-dur { font-size: 0.75rem; color: var(--muted); }
+
+  .playlist-check {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; margin-top: 4px;
+    transition: all var(--transition);
+  }
+  .playlist-item.done .playlist-check {
+    background: var(--sage); border-color: var(--sage); color: #fff;
+  }
+
+  /* ─── COURSES PAGE ────────────────────────────────────────── */
+  .courses-filter {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2rem;
+  }
+  .filter-btn {
+    padding: 7px 18px; border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; font-weight: 500; color: var(--muted);
+    transition: all var(--transition);
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--ink); color: var(--paper); border-color: var(--ink);
+  }
+
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .course-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    transition: all var(--transition); cursor: pointer;
+  }
+  .course-card:hover {
+    transform: translateY(-5px); box-shadow: var(--shadow-hover);
+    border-color: transparent;
+  }
+  .course-thumb {
+    height: 160px; display: flex; align-items: center;
+    justify-content: center; font-size: 3.5rem;
+    position: relative; overflow: hidden;
+  }
+  .course-card-body { padding: 1.25rem 1.5rem 1.5rem; }
+  .course-card-label { font-size: 0.72rem; color: var(--gold); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .course-card-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .course-card-desc { font-size: 0.84rem; color: var(--muted); line-height: 1.5; margin-bottom: 1rem; }
+  .course-card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 1rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--muted);
+  }
+  .difficulty {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.75rem; font-weight: 500;
+  }
+  .diff-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ─── FINISHED COURSES ────────────────────────────────────── */
+  .finished-overview {
+    background: linear-gradient(135deg, var(--ink) 0%, var(--slate) 100%);
+    border-radius: var(--radius); padding: 2.5rem;
+    color: var(--paper); margin-bottom: 2.5rem;
+    display: flex; align-items: center; gap: 3rem;
+    flex-wrap: wrap;
+  }
+  .overall-circle {
+    position: relative; width: 140px; height: 140px; flex-shrink: 0;
+  }
+  .overall-circle svg { transform: rotate(-90deg); }
+  .circle-text {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .circle-text .pct {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.9rem; font-weight: 800; color: var(--gold);
+  }
+  .circle-text .lbl { font-size: 0.72rem; color: rgba(247,245,240,0.6); }
+
+  .finished-info h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem;
+  }
+  .finished-info p { color: rgba(247,245,240,0.7); font-size: 0.92rem; margin-bottom: 1rem; }
+  .finished-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    padding: 5px 14px; border-radius: 100px;
+    background: rgba(247,245,240,0.1);
+    font-size: 0.78rem; border: 1px solid rgba(247,245,240,0.2);
+  }
+
+  .progress-list { display: flex; flex-direction: column; gap: 1rem; }
+  .progress-item {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 1.25rem 1.5rem;
+    display: flex; align-items: center; gap: 1.25rem;
+    transition: box-shadow var(--transition);
+  }
+  .progress-item:hover { box-shadow: var(--shadow); }
+
+  .progress-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+  }
+  .progress-content { flex: 1; }
+  .progress-label { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .progress-label span { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+  .progress-bar-outer { height: 8px; background: var(--cream); border-radius: 4px; overflow: hidden; }
+  .progress-bar-inner {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  }
+  .progress-bar-inner.sage { background: linear-gradient(90deg, var(--sage), #6db89f); }
+  .progress-bar-inner.rust { background: linear-gradient(90deg, var(--rust), #e07050); }
+  .progress-bar-inner.slate { background: linear-gradient(90deg, var(--slate), #4e6070); }
+
+  .pct-badge {
+    min-width: 56px; text-align: center;
+    font-family: 'Syne', sans-serif; font-size: 1.05rem;
+    font-weight: 700; color: var(--ink); flex-shrink: 0;
+  }
+
+  /* ─── ABOUT ───────────────────────────────────────────────── */
+  .about-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 3rem; align-items: center; margin-bottom: 4rem;
+  }
+  .about-content h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 700; letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  .about-content p { color: var(--muted); line-height: 1.8; margin-bottom: 1rem; }
+
+  .about-visual {
+    background: var(--cream); border-radius: var(--radius);
+    padding: 2.5rem; display: flex; flex-direction: column; gap: 1.25rem;
+  }
+  .feature-row {
+    display: flex; gap: 1rem; align-items: flex-start;
+  }
+  .feature-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--card-bg); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+  .feature-text h4 { font-weight: 600; font-size: 0.92rem; margin-bottom: 3px; }
+  .feature-text p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+  .team-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.25rem;
+  }
+  .team-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.75rem 1.25rem;
+    text-align: center; transition: all var(--transition);
+  }
+  .team-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+  .team-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--cream); margin: 0 auto 1rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+  }
+  .team-card h4 { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 4px; }
+  .team-card p { font-size: 0.8rem; color: var(--muted); }
+
+  /* ─── FOOTER ──────────────────────────────────────────────── */
+  footer {
+    background: var(--ink); color: var(--paper);
+    padding: 3rem clamp(1rem, 5vw, 3rem);
+    text-align: center; margin-top: 4rem;
+  }
+  footer .foot-brand {
+    font-family: 'Syne', sans-serif; font-size: 1.4rem;
+    font-weight: 800; margin-bottom: 0.5rem;
+  }
+  footer .foot-brand span { color: var(--gold); }
+  footer p { color: rgba(247,245,240,0.5); font-size: 0.85rem; }
+
+  /* ─── SCROLLBAR ───────────────────────────────────────────── */
+  .playlist-items::-webkit-scrollbar { width: 4px; }
+  .playlist-items::-webkit-scrollbar-track { background: transparent; }
+  .playlist-items::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ─── RESPONSIVE ──────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; text-align: center; }
+    .hero p { max-width: 100%; }
+    .hero-cta { justify-content: center; }
+    .hero-visual { display: none; }
+    .stats-bar { grid-template-columns: repeat(2,1fr); }
+    .course-layout { grid-template-columns: 1fr; }
+    .playlist-card { position: static; }
+    .about-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 620px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .stats-bar { grid-template-columns: 1fr 1fr; padding: 1.5rem; }
+    .stats-bar .stat-div:nth-child(2) { border-right: none; }
+    .stats-bar .stat-num { font-size: 1.5rem; }
+    .finished-overview { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .overall-circle { margin: 0 auto; }
+    .finished-chips { justify-content: center; }
+    .progress-item { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a class="nav-brand" href="#" onclick="showPage('home')">VIRTUAL LEARNING PLATFORM<span class="dot">.</span></a>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" class="active" id="nav-home">Home</a></li>
+    <li><a onclick="showPage('courses')" id="nav-courses">Courses</a></li>
+    <li><a onclick="showPage('finished')" id="nav-finished">Finished Courses</a></li>
+    <li><a onclick="showPage('about')" id="nav-about">About</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a onclick="showPage('home');toggleMenu()">Home</a>
+  <a onclick="showPage('courses');toggleMenu()">Courses</a>
+  <a onclick="showPage('finished');toggleMenu()">Finished Courses</a>
+  <a onclick="showPage('about');toggleMenu()">About</a>
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║         HOME PAGE            ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-text">
+      <div class="hero-eyebrow"><span class="pulse"></span> Now with 10 expert subjects</div>
+      <h1>Learn at your own<br><em>pace & rhythm</em><br>with EduNova</h1>
+      <p>A curated virtual learning experience built for curious minds. Explore structured video courses across ten disciplines — from code to cosmos.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="showPage('courses')">Browse Courses →</button>
+        <button class="btn btn-outline" onclick="showPage('finished')">My Progress</button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card-stack">
+        <div class="stat-card card-a">
+          <div class="label">Your Learning Progress</div>
+          <div class="value">68%</div>
+          <div class="sub">↑ 12% from last week</div>
+          <div class="progress-mini">
+            <div class="prog-row"><span>Overall completion</span></div>
+            <div class="prog-bar-wrap"><div class="prog-bar-fill" style="width:68%"></div></div>
+          </div>
+        </div>
+        <div class="stat-card card-b">
+          <div class="label">Active Subjects</div>
+          <div class="value" style="font-size:1.5rem;">10 Courses</div>
+          <div class="sub">4 completed · 6 in progress</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="section-wrap" style="padding-top:0">
+    <div class="stats-bar">
+      <div class="stat-div">
+        <div class="stat-num">10</div>
+        <div class="stat-label">Total Subjects</div>
+      </div>
+      <div class="stat-div">
+        <div class="stat-num">80+</div>
+        <div class="stat-label">Video Lessons</div>
+      </div>
+      <div class="stat-div">
+        <div class="stat-num">4</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-div">
+        <div class="stat-num">68%</div>
+        <div class="stat-label">Overall Progress</div>
+      </div>
+    </div>
+
+    <!-- Subjects -->
+    <div class="section-header">
+      <div class="section-label">What to explore</div>
+      <h2 class="section-title">Ten subjects, infinite possibilities</h2>
+      <p class="section-subtitle">Click any subject to open its full course with video lessons.</p>
+    </div>
+    <div class="subject-grid" id="subjectGrid"></div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║       COURSES PAGE           ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page" id="page-courses">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="section-label">All courses</div>
+      <h2 class="section-title">Browse the full catalogue</h2>
+      <p class="section-subtitle">Filter by difficulty or topic to find the right course for you.</p>
+    </div>
+    <div class="courses-filter">
+      <button class="filter-btn active" onclick="filterCourses('all',this)">All</button>
+      <button class="filter-btn" onclick="filterCourses('beginner',this)">Beginner</button>
+      <button class="filter-btn" onclick="filterCourses('intermediate',this)">Intermediate</button>
+      <button class="filter-btn" onclick="filterCourses('advanced',this)">Advanced</button>
+    </div>
+    <div class="courses-grid" id="coursesGrid"></div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║       SUBJECT/COURSE VIEW    ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page" id="page-subject">
+  <div class="section-wrap">
+    <button class="course-back" onclick="goBack()">← Back</button>
+    <div class="course-hero" id="courseHero"></div>
+    <div class="course-layout">
+      <div>
+        <div class="video-player">
+          <iframe id="mainVideo" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        </div>
+        <div class="video-info">
+          <h3 id="videoTitle"></h3>
+          <p id="videoDesc"></p>
+        </div>
+      </div>
+      <div class="playlist-card">
+        <div class="playlist-header">
+          Course Content <span class="playlist-count" id="playlistCount"></span>
+        </div>
+        <div class="playlist-items" id="playlistItems"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║      FINISHED COURSES        ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page" id="page-finished">
+  <div class="section-wrap">
+    <div class="section-header">
+      <div class="section-label">Your journey</div>
+      <h2 class="section-title">Course completion tracker</h2>
+      <p class="section-subtitle">A real-time view of how far you've come across all subjects.</p>
+    </div>
+    <div class="finished-overview">
+      <div class="overall-circle">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10"/>
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#c9a84c" stroke-width="10"
+            stroke-dasharray="364.4" stroke-dashoffset="116.6" stroke-linecap="round"/>
+        </svg>
+        <div class="circle-text">
+          <div class="pct">68%</div>
+          <div class="lbl">Complete</div>
+        </div>
+      </div>
+      <div class="finished-info">
+        <h2>Outstanding progress!</h2>
+        <p>You've completed 4 out of 10 courses and are actively progressing through 6 more. Keep up the momentum.</p>
+        <div class="finished-chips">
+          <span class="chip">✅ 4 Finished</span>
+          <span class="chip">🔄 6 In Progress</span>
+          <span class="chip">🏆 68% Overall</span>
+        </div>
+      </div>
+    </div>
+    <div class="progress-list" id="progressList"></div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║         ABOUT PAGE           ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page" id="page-about">
+  <div class="section-wrap">
+    <div class="about-grid">
+      <div class="about-content">
+        <div class="section-label">About EduNova</div>
+        <h2>Learning reimagined for the digital age</h2>
+        <p>EduNova was built with a single belief: quality education should be beautiful, accessible, and structured. We bring expert-curated video courses across ten core disciplines directly to your browser — no downloads, no apps, no paywalls.</p>
+        <p>Every course is hand-picked, every video sequenced with intent. Whether you're diving into data science or exploring classical music theory, EduNova gives you the clarity and structure to go from curious to confident.</p>
+        <button class="btn btn-primary" onclick="showPage('courses')">Start Learning Today →</button>
+      </div>
+      <div class="about-visual">
+        <div class="feature-row">
+          <div class="feature-icon">🎯</div>
+          <div class="feature-text">
+            <h4>Structured Learning Paths</h4>
+            <p>Each subject follows a thoughtful progression from fundamentals to advanced topics.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="feature-icon">📊</div>
+          <div class="feature-text">
+            <h4>Progress Tracking</h4>
+            <p>Visual completion percentages keep you motivated and aware of your journey.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="feature-icon">📱</div>
+          <div class="feature-text">
+            <h4>Fully Responsive</h4>
+            <p>Learn from any device — desktop, tablet, or mobile — with a seamless experience.</p>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="feature-icon">🌐</div>
+          <div class="feature-text">
+            <h4>Always Available</h4>
+            <p>No installations, no sign-ups. Open your browser and start learning instantly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-label">The team</div>
+      <h2 class="section-title">Built by educators & engineers</h2>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">👩‍🏫</div>
+        <h4>Priya Sharma</h4>
+        <p>Curriculum Director</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👨‍💻</div>
+        <h4>Arjun Mehta</h4>
+        <p>Lead Developer</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👩‍🎨</div>
+        <h4>Leila Hassan</h4>
+        <p>UX Designer</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👨‍🔬</div>
+        <h4>Carlos Vega</h4>
+        <p>Content Strategist</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-brand">EduNova<span>.</span></div>
+  <p>© 2025 EduNova Virtual Learning Platform. All rights reserved.</p>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════ */
+const subjects = [
+  {
+    id: 'python',
+    title: 'Python Programming',
+    desc: 'From beginner syntax to advanced data structures and real-world projects.',
+    icon: '🐍',
+    iconBg: '#e8f5e9', accentColor: '#2e7d32',
+    badge: 'Most Popular', badgeBg: '#e8f5e9', badgeColor: '#2e7d32',
+    lessons: 8, hours: '6h 20m',
+    difficulty: 'beginner',
+    progress: 100,
+    colorBar: 'sage',
+    videos: [
+      { title: 'Python Basics & Syntax', dur: '18 min', desc: 'Variables, data types, and your first Python script.', id: 'kqtD5dpn9C8' },
+      { title: 'Control Flow & Loops', dur: '22 min', desc: 'if/else statements, for & while loops.', id: '_uQrJ0TkZlc' },
+      { title: 'Functions & Scope', dur: '20 min', desc: 'Defining functions, arguments, return values.', id: '9Os0IB2K1E4' },
+      { title: 'Lists & Dictionaries', dur: '25 min', desc: 'Core Python data structures in depth.', id: 'W8KRzm-HUcc' },
+      { title: 'File I/O & Exceptions', dur: '18 min', desc: 'Reading and writing files, error handling.', id: 'Uh2ebFW8OO0' },
+      { title: 'Object-Oriented Python', dur: '28 min', desc: 'Classes, objects, inheritance explained.', id: 'JeznW_7DlB0' },
+      { title: 'Modules & Packages', dur: '15 min', desc: 'Organising code and using pip.', id: 'CqvZ3vGoGs0' },
+      { title: 'Capstone Project', dur: '35 min', desc: 'Build a complete command-line application.', id: 'rfscVS0vtbw' },
+    ]
+  },
+  {
+    id: 'webdev',
+    title: 'Web Development',
+    desc: 'Master HTML, CSS, and JavaScript to build beautiful modern websites.',
+    icon: '🌐',
+    iconBg: '#e3f2fd', accentColor: '#1565c0',
+    badge: 'Beginner Friendly', badgeBg: '#e3f2fd', badgeColor: '#1565c0',
+    lessons: 8, hours: '7h 10m',
+    difficulty: 'beginner',
+    progress: 75,
+    colorBar: 'gold',
+    videos: [
+      { title: 'HTML Foundations', dur: '20 min', desc: 'Document structure, tags, and semantic HTML.', id: 'pQN-pnXPaVg' },
+      { title: 'CSS Fundamentals', dur: '22 min', desc: 'Selectors, box model, and styling basics.', id: 'yfoY53QXEnI' },
+      { title: 'Flexbox Layout', dur: '18 min', desc: 'Mastering CSS flexbox for modern layouts.', id: 'fYq5PXgSsbE' },
+      { title: 'CSS Grid', dur: '20 min', desc: 'Two-dimensional layouts with CSS Grid.', id: '9zBsdzdE2t0' },
+      { title: 'JavaScript Basics', dur: '30 min', desc: 'Variables, functions, DOM manipulation.', id: 'hdI2bqOjy3c' },
+      { title: 'Responsive Design', dur: '22 min', desc: 'Media queries and mobile-first development.', id: 'srvUrASNj0s' },
+      { title: 'JavaScript Events', dur: '20 min', desc: 'Event listeners, callbacks, and interactivity.', id: 'jS4aFq5-91M' },
+      { title: 'Build a Portfolio Site', dur: '40 min', desc: 'Put it all together with a real project.', id: 'r_hYR53r61M' },
+    ]
+  },
+  {
+    id: 'datascience',
+    title: 'Data Science',
+    desc: 'Explore data analysis, visualisation, and machine learning fundamentals.',
+    icon: '📊',
+    iconBg: '#fce4ec', accentColor: '#c62828',
+    badge: 'Trending', badgeBg: '#fce4ec', badgeColor: '#c62828',
+    lessons: 7, hours: '8h 00m',
+    difficulty: 'intermediate',
+    progress: 57,
+    colorBar: 'rust',
+    videos: [
+      { title: 'Intro to Data Science', dur: '15 min', desc: 'What data science is and the workflow.', id: 'X3paOmcrTjQ' },
+      { title: 'NumPy & Pandas', dur: '35 min', desc: 'Data manipulation with Python libraries.', id: 'vmEHCJofslE' },
+      { title: 'Data Visualisation', dur: '28 min', desc: 'Matplotlib and Seaborn plotting.', id: 'a9UrKTVEeZA' },
+      { title: 'Statistical Analysis', dur: '25 min', desc: 'Descriptive stats and probability basics.', id: 'xxpc-HPKN28' },
+      { title: 'Machine Learning Intro', dur: '30 min', desc: 'Supervised vs unsupervised learning.', id: 'ukzFI9rgwfU' },
+      { title: 'Regression Models', dur: '28 min', desc: 'Linear and logistic regression in Python.', id: 'nk2CQITm_eo' },
+      { title: 'Capstone: Real Dataset', dur: '40 min', desc: 'Analyse a real-world dataset end-to-end.', id: 'r-uOLxNrNk8' },
+    ]
+  },
+  {
+    id: 'mathematics',
+    title: 'Mathematics',
+    desc: 'Calculus, linear algebra, and discrete mathematics for practical thinkers.',
+    icon: '📐',
+    iconBg: '#ede7f6', accentColor: '#4527a0',
+    badge: 'Essential', badgeBg: '#ede7f6', badgeColor: '#4527a0',
+    lessons: 7, hours: '5h 45m',
+    difficulty: 'intermediate',
+    progress: 100,
+    colorBar: 'sage',
+    videos: [
+      { title: 'Algebra Review', dur: '20 min', desc: 'Equations, inequalities, and functions.', id: 'tnsiBd5gjDQ' },
+      { title: 'Functions & Graphs', dur: '18 min', desc: 'Plotting and interpreting functions.', id: 'kvGsIo1TmsM' },
+      { title: 'Intro to Calculus', dur: '25 min', desc: 'Limits, derivatives and their meaning.', id: 'WUvTyaaNkzM' },
+      { title: 'Integration Basics', dur: '22 min', desc: 'Riemann sums and the integral.', id: 'o75AqTInKDU' },
+      { title: 'Linear Algebra', dur: '28 min', desc: 'Vectors, matrices, and transformations.', id: 'fNk_zzaMoSs' },
+      { title: 'Probability Theory', dur: '22 min', desc: 'Events, distributions, and Bayes theorem.', id: 'SkidyDQuupA' },
+      { title: 'Discrete Mathematics', dur: '25 min', desc: 'Logic, sets, and combinatorics.', id: 'rdXw7Ps9vxc' },
+    ]
+  },
+  {
+    id: 'physics',
+    title: 'Physics',
+    desc: 'Mechanics, thermodynamics, waves, and modern physics concepts.',
+    icon: '⚛️',
+    iconBg: '#e0f7fa', accentColor: '#006064',
+    badge: 'Advanced', badgeBg: '#e0f7fa', badgeColor: '#006064',
+    lessons: 6, hours: '5h 30m',
+    difficulty: 'advanced',
+    progress: 50,
+    colorBar: 'slate',
+    videos: [
+      { title: 'Classical Mechanics', dur: '28 min', desc: "Newton's laws and kinematics.", id: 'ZM8ECpBuQYE' },
+      { title: 'Energy & Work', dur: '22 min', desc: 'Conservation of energy, work-energy theorem.', id: 'w4QFJb9a409' },
+      { title: 'Waves & Oscillations', dur: '25 min', desc: 'Simple harmonic motion and wave properties.', id: 'tJW_a6JeXD8' },
+      { title: 'Thermodynamics', dur: '24 min', desc: 'Heat, entropy, and the laws of thermodynamics.', id: 'i-NNWI8Ccas' },
+      { title: 'Electromagnetism', dur: '30 min', desc: 'Electric fields, magnetic force, and circuits.', id: 'sOkp5UtdKHE' },
+      { title: 'Quantum Mechanics Intro', dur: '28 min', desc: 'Wave-particle duality and uncertainty.', id: 'p7bzE1E5PMY' },
+    ]
+  },
+  {
+    id: 'chemistry',
+    title: 'Chemistry',
+    desc: 'Atomic structure, bonding, reactions, and organic chemistry basics.',
+    icon: '🧪',
+    iconBg: '#fff8e1', accentColor: '#e65100',
+    badge: 'Intermediate', badgeBg: '#fff8e1', badgeColor: '#e65100',
+    lessons: 6, hours: '4h 50m',
+    difficulty: 'intermediate',
+    progress: 100,
+    colorBar: 'rust',
+    videos: [
+      { title: 'Atomic Structure', dur: '18 min', desc: 'Protons, neutrons, electrons, and orbitals.', id: 'W_bBGaezPAo' },
+      { title: 'Chemical Bonding', dur: '22 min', desc: 'Ionic, covalent, and metallic bonds.', id: 'QXT4OLYCMOY' },
+      { title: 'Periodic Table Deep Dive', dur: '20 min', desc: 'Trends and element groups explained.', id: 'V_s_dAhWprc' },
+      { title: 'Chemical Reactions', dur: '24 min', desc: 'Balancing equations and reaction types.', id: 'SYsO0uFy1gU' },
+      { title: 'Acids & Bases', dur: '18 min', desc: 'pH, neutralisation, and titration.', id: '6EQXPQB8YMY' },
+      { title: 'Organic Chemistry Intro', dur: '25 min', desc: 'Carbon compounds, hydrocarbons, and functional groups.', id: 'g5sBhpGaWoI' },
+    ]
+  },
+  {
+    id: 'history',
+    title: 'World History',
+    desc: 'From ancient civilisations to the 20th century — the full human story.',
+    icon: '🏛️',
+    iconBg: '#efebe9', accentColor: '#4e342e',
+    badge: 'Humanities', badgeBg: '#efebe9', badgeColor: '#4e342e',
+    lessons: 6, hours: '4h 15m',
+    difficulty: 'beginner',
+    progress: 33,
+    colorBar: 'gold',
+    videos: [
+      { title: 'Ancient Civilisations', dur: '25 min', desc: 'Egypt, Mesopotamia, Greece, and Rome.', id: 'UChC7mCrk_4' },
+      { title: 'Medieval World', dur: '22 min', desc: 'Feudalism, crusades, and the Black Death.', id: 'i05X_5BwMBc' },
+      { title: 'The Renaissance', dur: '20 min', desc: 'Art, science, and humanism reborn.', id: 'Nmi8TRwU7B4' },
+      { title: 'Age of Exploration', dur: '18 min', desc: 'Columbus, da Gama, and global trade.', id: 'iacoD0OUBo0' },
+      { title: 'Industrial Revolution', dur: '22 min', desc: 'Steam power and social transformation.', id: 'zhL5DCizj5c' },
+      { title: '20th Century Conflicts', dur: '28 min', desc: 'WWI, WWII, and the Cold War.', id: 'IXO3KSepqEM' },
+    ]
+  },
+  {
+    id: 'music',
+    title: 'Music Theory',
+    desc: 'Notes, scales, chords, rhythm, and composition from scratch.',
+    icon: '🎵',
+    iconBg: '#fce4ec', accentColor: '#880e4f',
+    badge: 'Creative', badgeBg: '#fce4ec', badgeColor: '#880e4f',
+    lessons: 6, hours: '3h 40m',
+    difficulty: 'beginner',
+    progress: 83,
+    colorBar: 'rust',
+    videos: [
+      { title: 'Reading Music Notation', dur: '18 min', desc: 'Staff, clefs, notes, and rests.', id: 'ZN41d7Txcps' },
+      { title: 'Scales & Keys', dur: '20 min', desc: 'Major and minor scales, key signatures.', id: 'kvGsIo1TmsM' },
+      { title: 'Chords & Harmony', dur: '22 min', desc: 'Triads, seventh chords, and progressions.', id: 'yclcNGfpnbQ' },
+      { title: 'Rhythm & Meter', dur: '16 min', desc: 'Time signatures, tempo, and syncopation.', id: '5pq7vv-5kPE' },
+      { title: 'Melody Writing', dur: '18 min', desc: 'Phrasing, contour, and motivic development.', id: '0HCXvzBTcSM' },
+      { title: 'Basic Composition', dur: '24 min', desc: 'Put theory into practice and write a piece.', id: 'K0A3d6XNLMg' },
+    ]
+  },
+  {
+    id: 'english',
+    title: 'English Writing',
+    desc: 'Essays, storytelling, grammar, and professional communication skills.',
+    icon: '✍️',
+    iconBg: '#f3e5f5', accentColor: '#6a1b9a',
+    badge: 'Life Skill', badgeBg: '#f3e5f5', badgeColor: '#6a1b9a',
+    lessons: 6, hours: '3h 55m',
+    difficulty: 'beginner',
+    progress: 100,
+    colorBar: 'sage',
+    videos: [
+      { title: 'Grammar Foundations', dur: '20 min', desc: 'Sentence structure, parts of speech.', id: 'e-bRpEK3Mqs' },
+      { title: 'Essay Structure', dur: '18 min', desc: 'Intro, body, conclusion — done right.', id: 'tl5OULZ2u_4' },
+      { title: 'Persuasive Writing', dur: '22 min', desc: 'Rhetoric, evidence, and argument.', id: 'KWOyEADwVHo' },
+      { title: 'Narrative Writing', dur: '20 min', desc: 'Storytelling, voice, and character.', id: 'iiAMPEk3TvE' },
+      { title: 'Academic Writing', dur: '18 min', desc: 'Citations, research writing, and style.', id: 'FnCRqMZPWOc' },
+      { title: 'Professional Communication', dur: '20 min', desc: 'Emails, reports, and workplace writing.', id: 'UIKGV2ODT9A' },
+    ]
+  },
+  {
+    id: 'astronomy',
+    title: 'Astronomy',
+    desc: 'Galaxies, stars, the solar system, and the vastness of the universe.',
+    icon: '🔭',
+    iconBg: '#e8eaf6', accentColor: '#283593',
+    badge: 'Fascinating', badgeBg: '#e8eaf6', badgeColor: '#283593',
+    lessons: 6, hours: '5h 10m',
+    difficulty: 'beginner',
+    progress: 17,
+    colorBar: 'slate',
+    videos: [
+      { title: 'Our Solar System', dur: '25 min', desc: 'Planets, moons, and the Sun.', id: 'libKVRa01L8' },
+      { title: 'Stars & Life Cycles', dur: '22 min', desc: 'How stars are born, live, and die.', id: 'PM9CqueAdLU' },
+      { title: 'Galaxies & the Universe', dur: '24 min', desc: 'Milky Way, galaxy types, and scale.', id: 'do2aG_U3PoA' },
+      { title: 'Black Holes', dur: '20 min', desc: 'Formation, event horizons, and Hawking radiation.', id: 'qZWPBKULkdQ' },
+      { title: 'Space Exploration', dur: '22 min', desc: 'NASA, SpaceX, and the future of travel.', id: '_mZHqScTPSI' },
+      { title: 'Dark Matter & Energy', dur: '20 min', desc: 'What makes up most of the universe?', id: 'QAa2O_8wBUQ' },
+    ]
+  }
+];
+
+/* ═══════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════ */
+let currentSubject = null;
+let currentVideo = 0;
+let prevPage = 'home';
+let completedLessons = {};
+
+/* ═══════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════ */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-links a, .mobile-menu a').forEach(a => a.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'finished') renderProgress();
+}
+
+function toggleMenu() {
+  const h = document.getElementById('hamburger');
+  const m = document.getElementById('mobileMenu');
+  h.classList.toggle('open');
+  m.classList.toggle('open');
+}
+
+function goBack() {
+  showPage(prevPage);
+  document.getElementById('mainVideo').src = '';
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER SUBJECTS (HOME)
+═══════════════════════════════════════════════════ */
+function renderSubjects() {
+  const grid = document.getElementById('subjectGrid');
+  grid.innerHTML = subjects.map(s => `
+    <div class="subject-card" onclick="openSubject('${s.id}')"
+      style="--card-accent:${s.accentColor}; --icon-bg:${s.iconBg};">
+      <div class="subject-icon">${s.icon}</div>
+      <h3>${s.title}</h3>
+      <p>${s.desc}</p>
+      <div class="subject-meta">
+        <span>📹 ${s.lessons} lessons</span>
+        <span>⏱ ${s.hours}</span>
+      </div>
+      <div class="subject-badge" style="background:${s.badgeBg};color:${s.badgeColor}">${s.badge}</div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER COURSES PAGE
+═══════════════════════════════════════════════════ */
+const diffColors = { beginner: '#2e7d32', intermediate: '#e65100', advanced: '#c62828' };
+const diffBg = { beginner: '#e8f5e9', intermediate: '#fff3e0', advanced: '#ffebee' };
+
+function renderCourses(filter = 'all') {
+  const grid = document.getElementById('coursesGrid');
+  const filtered = filter === 'all' ? subjects : subjects.filter(s => s.difficulty === filter);
+  grid.innerHTML = filtered.map(s => `
+    <div class="course-card" onclick="openSubject('${s.id}','courses')">
+      <div class="course-thumb" style="background:${s.iconBg}">${s.icon}</div>
+      <div class="course-card-body">
+        <div class="course-card-label">${s.difficulty.toUpperCase()}</div>
+        <div class="course-card-title">${s.title}</div>
+        <div class="course-card-desc">${s.desc}</div>
+        <div class="course-card-footer">
+          <span>📹 ${s.lessons} lessons · ${s.hours}</span>
+          <span class="difficulty">
+            <span class="diff-dot" style="background:${diffColors[s.difficulty]}"></span>
+            ${s.difficulty}
+          </span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterCourses(level, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCourses(level);
+}
+
+/* ═══════════════════════════════════════════════════
+   OPEN SUBJECT
+═══════════════════════════════════════════════════ */
+function openSubject(id, from = 'home') {
+  prevPage = from;
+  const s = subjects.find(x => x.id === id);
+  currentSubject = s;
+  currentVideo = 0;
+
+  // Hero
+  document.getElementById('courseHero').innerHTML = `
+    <div class="course-label">${s.badge} · ${s.difficulty}</div>
+    <h2>${s.icon} ${s.title}</h2>
+    <p>${s.desc}</p>
+    <div class="course-hero-meta">
+      <span>📹 ${s.lessons} lessons</span>
+      <span>⏱ ${s.hours}</span>
+      <span>📈 ${s.progress}% complete</span>
+    </div>
+  `;
+
+  loadVideo(0);
+  renderPlaylist();
+
+  showPage('subject');
+  const navEl = document.getElementById('nav-' + from);
+  if (navEl) { document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active')); navEl.classList.add('active'); }
+}
+
+/* ═══════════════════════════════════════════════════
+   VIDEO PLAYER
+═══════════════════════════════════════════════════ */
+function loadVideo(idx) {
+  const s = currentSubject;
+  const v = s.videos[idx];
+  currentVideo = idx;
+  document.getElementById('mainVideo').src = `https://www.youtube.com/embed/${v.id}?rel=0&modestbranding=1`;
+  document.getElementById('videoTitle').textContent = v.title;
+  document.getElementById('videoDesc').textContent = v.desc;
+
+  document.querySelectorAll('.playlist-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+
+  // mark as done
+  if (!completedLessons[s.id]) completedLessons[s.id] = new Set();
+  completedLessons[s.id].add(idx);
+  renderPlaylist();
+}
+
+function renderPlaylist() {
+  const s = currentSubject;
+  document.getElementById('playlistCount').textContent = `${s.videos.length} lessons`;
+  const done = completedLessons[s.id] || new Set();
+  document.getElementById('playlistItems').innerHTML = s.videos.map((v, i) => `
+    <div class="playlist-item ${i === currentVideo ? 'active' : ''} ${done.has(i) ? 'done' : ''}" onclick="loadVideo(${i})">
+      <div class="playlist-num">${i + 1}</div>
+      <div class="playlist-item-info">
+        <div class="playlist-item-title">${v.title}</div>
+        <div class="playlist-item-dur">⏱ ${v.dur}</div>
+      </div>
+      <div class="playlist-check">${done.has(i) ? '✓' : ''}</div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   FINISHED / PROGRESS
+═══════════════════════════════════════════════════ */
+function renderProgress() {
+  const list = document.getElementById('progressList');
+  list.innerHTML = subjects.map(s => `
+    <div class="progress-item">
+      <div class="progress-icon" style="background:${s.iconBg}">${s.icon}</div>
+      <div class="progress-content">
+        <div class="progress-label">
+          ${s.title}
+          <span>${s.progress === 100 ? '✅ Completed' : `${s.lessons} lessons`}</span>
+        </div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner ${s.colorBar}" style="width:${s.progress}%"></div>
+        </div>
+      </div>
+      <div class="pct-badge">${s.progress}%</div>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   SCROLL EFFECT
+═══════════════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+renderSubjects();
+renderCourses();
+</script>
+</body>
+</html>
